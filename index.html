@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broken Heart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* বৃষ্টির ফোঁটার ব্যাকগ্রাউন্ড ইফেক্ট */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .drop {
+            position: absolute;
+            bottom: 100%;
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(102, 252, 241, 0.2));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh);
+            }
+        }
+
+        /* হার্ট কন্টেইনার */
+        .heart-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            cursor: pointer;
+            z-index: 1;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        .heart-container.broken {
+            animation: none;
+        }
+
+        /* হার্টের বাম এবং ডান অংশ */
+        .heart-half {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.2s ease;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            fill: #e63946;
+            filter: drop-shadow(0 0 15px rgba(230, 57, 70, 0.6));
+        }
+
+        /* হার্ট ভেঙে যাওয়ার অ্যানিমেশন */
+        .heart-container.broken .left {
+            transform: translate(-25px, 15px) rotate(-18deg);
+            opacity: 0.7;
+        }
+
+        .heart-container.broken .right {
+            transform: translate(25px, 20px) rotate(18deg);
+            opacity: 0.7;
+        }
+
+        .heart-container.broken svg {
+            fill: #59252a;
+            filter: drop-shadow(0 0 5px rgba(89, 37, 42, 0.3));
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.08); }
+        }
+
+        /* টেক্সট ও মেসেজ */
+        .message-box {
+            margin-top: 40px;
+            text-align: center;
+            z-index: 1;
+            min-height: 80px;
+            padding: 0 20px;
+        }
+
+        .instruction {
+            font-size: 14px;
+            color: #66fcf1;
+            opacity: 0.7;
+            letter-spacing: 1px;
+            transition: opacity 0.5s;
+        }
+
+        .sad-quote {
+            font-size: 20px;
+            color: #a8b2d1;
+            font-style: italic;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 1s ease;
+        }
+
+        .sad-quote.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="rain" id="rain"></div>
+
+    <div class="heart-container" id="heart" onclick="breakHeart()">
+        <!-- বাম অংশ -->
+        <div class="heart-half left">
+            <svg viewBox="0 0 100 100">
+                <path d="M50 88.9L16.7 55.6C7.2 46.1 7.2 30.9 16.7 21.4s24.7-9.5 34.2 0L50 22.3V35l-6 12 8 14-5 15 3 12.9z"/>
+            </svg>
+        </div>
+        <!-- ডান অংশ -->
+        <div class="heart-half right">
+            <svg viewBox="0 0 100 100">
+                <path d="M50 88.9l33.3-33.3c9.5-9.5 9.5-24.7 0-34.2s-24.7-9.5-34.2 0L50 22.3V35l-6 12 8 14-5 15 3 12.9z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="message-box">
+        <p class="instruction" id="instruction">Click on the heart...</p>
+        <p class="sad-quote" id="quote"></p>
+    </div>
+
+    <script>
+        // ব্যাকগ্রাউন্ডে হালকা বৃষ্টির ইফেক্ট তৈরি করা
+        const rainContainer = document.getElementById('rain');
+        for (let i = 0; i < 60; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('drop');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.animationDuration = (Math.random() * 1 + 0.8) + 's';
+            drop.style.animationDelay = Math.random() * 2 + 's';
+            rainContainer.appendChild(drop);
+        }
+
+        // হার্ট ভাঙার ফাংশন এবং টাইপিং ইফেক্ট
+        let isBroken = false;
+        const quoteText = "আমি নিজের এক্সপেরিয়েন্স এ তোমাদের একটা কথা বলি, জীবনের সবথেকে বড় শিক্ষা হলো, কোথায় থামতে হবে সেটা জানা। আর কোথায় থেকে নিজেকে সরিয়ে নিতে হবে, সেটা বোঝা!কিছু মানুষ জীবনে আসে শুধু এটা শেখাতে যে, সবাই থাকার জন্য আসে না...";
+        
+        function breakHeart() {
+            if (isBroken) return;
+            isBroken = true;
+
+            const heart = document.getElementById('heart');
+            const instruction = document.getElementById('instruction');
+            const quoteElement = document.getElementById('quote');
+
+            heart.classList.add('broken');
+            instruction.style.opacity = '0';
+
+            setTimeout(() => {
+                quoteElement.classList.add('show');
+                typeWriter(quoteText, quoteElement, 0);
+            }, 600);
+        }
+
+        function typeWriter(text, element, index) {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                setTimeout(() => typeWriter(text, element, index + 1), 65);
+            }
+        }
+    </script>
+     <audio id="bgMusic" autoplay loop>
+    <source src="music.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<script>
+const music = document.getElementById("bgMusic");
+
+// ব্রাউজার ব্লক করলে প্রথম ক্লিকেই গান চালু হবে
+document.addEventListener("click", () => {
+    music.play().catch(() => {});
+}, { once: true });
+</script>
+</body>
+</html>
